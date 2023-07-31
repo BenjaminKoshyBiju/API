@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 from .serializers import TaskSerializer
 from .models import Task
 
@@ -19,8 +20,9 @@ def apiAvailable(request):
     return Response(api_urls)
 
 @api_view(['GET'])
+
 def apiList(request):
-    tasks=Task.objects.all()
+    tasks=Task.objects.filter(user_id=request.user.id)
     serializer=TaskSerializer(tasks, many=True) 
     return Response(serializer.data)
 
@@ -36,7 +38,7 @@ def apiCreate(request):
     serializer=TaskSerializer(data=request.data)
 
     if serializer.is_valid():
-     serializer.save()
+     serializer.save(user_id=request.user.id)
 
     return Response(serializer.data)
 
